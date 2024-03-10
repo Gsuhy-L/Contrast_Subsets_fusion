@@ -1,0 +1,79 @@
+Total_Test_Accuracy: 0.8576|NR F1: 0.7607|FR F1: 0.8672|TR F1: 0.9173|UR F1: 0.8679
+
+Total_Test_Accuracy: 0.8610|NR F1: 0.7767|FR F1: 0.8630|TR F1: 0.9329|UR F1: 0.8595
+
+Process finished with exit code 0
+
+Total_Test_Accuracy: 0.8396|NR F1: 0.7326|FR F1: 0.8078|TR F1: 0.9264|UR F1: 0.8416
+
+Total_Test_Accuracy: 0.8696|NR F1: 0.7910|FR F1: 0.8852|TR F1: 0.9394|UR F1: 0.8585
+
+Total_Test_Accuracy: 0.8588|NR F1: 0.7700|FR F1: 0.8537|TR F1: 0.9463|UR F1: 0.8529
+
+Total_Test_Accuracy: 0.8504|NR F1: 0.7896|FR F1: 0.8387|TR F1: 0.9162|UR F1: 0.8305
+
+Total_Test_Accuracy: 0.8617|NR F1: 0.7754|FR F1: 0.8670|TR F1: 0.9255|UR F1: 0.8510e
+
+Total_Test_Accuracy: 0.8453|NR F1: 0.7415|FR F1: 0.8437|TR F1: 0.9113|UR F1: 0.8651
+
+Early stopping
+Total_Test_Accuracy: 0.8511|NR F1: 0.7550|FR F1: 0.8461|TR F1: 0.9274|UR F1: 0.8573
+
+witout sub
+Early stopping
+Total_Test_Accuracy: 0.8581|NR F1: 0.7563|FR F1: 0.8702|TR F1: 0.9364|UR F1: 0.8536
+
+without sub
+Early stopping
+Total_Test_Accuracy: 0.8535|NR F1: 0.7790|FR F1: 0.8808|TR F1: 0.9131|UR F1: 0.8441
+
+
+have pre
+rdea
+Early stopping
+Total_Test_Accuracy: 0.8849|NR F1: 0.8033|FR F1: 0.8840|TR F1: 0.9480|UR F1: 0.8924
+
+5Early stopping
+Total_Test_Accuracy: 0.8758|NR F1: 0.7997|FR F1: 0.8797|TR F1: 0.9358|UR F1: 0.8698
+
+10
+Early stopping
+Total_Test_Accuracy: 0.8726|NR F1: 0.8048|FR F1: 0.8706|TR F1: 0.9316|UR F1: 0.8739
+
+1
+BEST Accuracy: 0.8994|NR F1: 0.8731|FR F1: 0.9035|TR F1: 0.9309|UR F1: 0.8819
+Early stopping
+Total_Test_Accuracy: 0.8860|NR F1: 0.8219|FR F1: 0.8988|TR F1: 0.9368|UR F1: 0.8854
+
+5
+0.869
+
+Early stopping
+Total_Test_Accuracy: 0.8696|NR F1: 0.7959|FR F1: 0.8818|TR F1: 0.9269|UR F1: 0.8683
+
+5
+0.02
+BEST Accuracy: 0.8491|NR F1: 0.7182|FR F1: 0.8864|TR F1: 0.9151|UR F1: 0.8729
+Early stopping
+Total_Test_Accuracy: 0.8674|NR F1: 0.7874|FR F1: 0.8691|TR F1: 0.9275|UR F1: 0.8623
+
+5
+0.002
+Early stopping
+Total_Test_Accuracy: 0.8656|NR F1: 0.7848|FR F1: 0.8694|TR F1: 0.9380|UR F1: 0.8581
+
+5
+Early stopping
+Total_Test_Accuracy: 0.8627|NR F1: 0.7823|FR F1: 0.8582|TR F1: 0.9253|UR F1: 0.8667
+
+Early stopping
+Total_Test_Accuracy: 0.8655|NR F1: 0.7963|FR F1: 0.8676|TR F1: 0.9270|UR F1: 0.8657
+0.2
+change_5
+Early stopping
+Total_Test_Accuracy: 0.8771|NR F1: 0.8097|FR F1: 0.8766|TR F1: 0.9316|UR F1: 0.8809
+
+0.5
+Early stopping
+Total_Test_Accuracy: 0.8641|NR F1: 0.7811|FR F1: 0.8662|TR F1: 0.9317|UR F1: 0.8601
+-------------------

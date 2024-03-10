@@ -1,0 +1,24 @@
+model_config:
+  model_name: GAT
+  hidden_size: 64
+  n_layers: 2
+  dropout_p: 0.5
+  lr: 0.0005
+  epochs: 200
+  weight_decay: 1e-6
+  patience: 10
+  multi_label: false
+  learn_edge_att: false
+  extractor_dropout_p: 0.5
+  UDdroprate: 0
+  batch_size: 128
+  train_split: 0.8
+  test_split: 0.2
+  Nnum_k: 0.7
+  Gnum_m: 1
+  temperature: 1
+  separate: false
+  edge_split: false
+  pred_coef: 0.3
+  sampler_coef: 0.7
+  counter_coef: 0.1
