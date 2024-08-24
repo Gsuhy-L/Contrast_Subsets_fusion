@@ -19,7 +19,7 @@ from pathlib import Path
 import yaml
 import torch
 from sampler import Sampler
-
+#        self.extractor = ExtractorMLP(64, False, 0, 1)
 class ExtractorMLP(nn.Module):
 
     def __init__(self, hidden_size, learn_edge_att = False, extractor_dropout_p = 0, Gnum_m = 1):
@@ -28,18 +28,31 @@ class ExtractorMLP(nn.Module):
         dropout_p = extractor_dropout_p
 
         if self.learn_edge_att:
-            self.feature_extractor = MLP([hidden_size * 2, hidden_size * 4, hidden_size, 1], dropout=dropout_p)
+            self.feature_extractor = MLP([hidden_size * 3, hidden_size * 4, hidden_size, 1], dropout=dropout_p)
         else:
-            self.feature_extractor = MLP([hidden_size * 2, hidden_size * 2, hidden_size, Gnum_m], dropout=dropout_p)
+            self.feature_extractor = MLP([hidden_size * 3, hidden_size * 2, hidden_size, Gnum_m], dropout=dropout_p)
+        self.init_emb()
 
+    def init_emb(self):
+        # initrange = -1.5 / self.embedding_dim
+        for m in self.modules():
+            if isinstance(m, th.nn.Linear):
+                th.nn.init.xavier_uniform_(m.weight.data)
+                if m.bias is not None:
+                    m.bias.data.fill_(0.0)
     def forward(self, emb, edge_index, batch):
-        if self.learn_edge_att:
-            col, row = edge_index
-            f1, f2 = emb[col], emb[row]
-            f12 = torch.cat([f1, f2], dim=-1)
-            att_log_logits = self.feature_extractor(f12, batch[col])
-        else:
-            att_log_logits = self.feature_extractor(emb, batch)
+        # if self.learn_edge_att:
+        #     col, row = edge_index
+        #     f1, f2 = emb[col], emb[row]
+        #     f12 = torch.cat([f1, f2], dim=-1)
+        #     att_log_logits = self.feature_extractor(f12, batch[col])
+        # else:
+        # print(emb.shape)
+        # print(e)
+        print(emb.shape)
+        # print(e)
+        att_log_logits = self.feature_extractor(emb, batch)
+
         return att_log_logits
 
 class Net(th.nn.Module):

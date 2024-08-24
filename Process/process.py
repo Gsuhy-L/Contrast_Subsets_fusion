@@ -69,10 +69,10 @@ def loadBiData1(dataname, treeDic, fold_x_train, fold_x_test, TDdroprate,BUdropr
     # data_path = os.path.join(cwd,'data', dataname + 'graph')
     data_path = os.path.join("/home/ubuntu/PyProjects_gsuhyl/PyProjects/RDEA-main-init/RDEA-main/Process",'data',dataname+'graph')
     print("loading train set", )
-    traindata_list = BiGraphDataset1(fold_x_train, treeDic, tddroprate=TDdroprate, budroprate=BUdroprate, data_path=data_path)
+    traindata_list = BiGraphDataset1(fold_x_train, treeDic, tddroprate=TDdroprate, budroprate=BUdroprate, dataname=dataname, data_path=data_path)
     print("train no:", len(traindata_list))
     print("loading test set", )
-    testdata_list = BiGraphDataset1(fold_x_test, treeDic, data_path=data_path)
+    testdata_list = BiGraphDataset1(fold_x_test, treeDic, dataname=dataname, data_path=data_path)
     print("test no:", len(testdata_list))
     return traindata_list, testdata_list
 

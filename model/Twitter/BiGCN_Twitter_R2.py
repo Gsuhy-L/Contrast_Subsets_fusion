@@ -23,7 +23,7 @@ from sampler import Sampler
 
 import GCL.losses as L
 from GCL.models import DualBranchContrast
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 Graph_loss = DualBranchContrast(loss=L.JSD(), mode='G2G')
 
@@ -44,7 +44,8 @@ def train_GCN(treeDic, x_test, x_train, model_config, UDdroprate,lr, weight_deca
             optimizer.zero_grad()
             Batch_data = Batch_data.to(device)
             loss = unsup_model(Batch_data)
-            loss_all += loss.item() * (max(Batch_data.batch) + 1)
+            # loss_all += loss.item() * (max(Batch_data.batch) + 1)
+            loss_all += loss.item()
 
             loss.backward()
             optimizer.step()
@@ -54,7 +55,7 @@ def train_GCN(treeDic, x_test, x_train, model_config, UDdroprate,lr, weight_deca
     th.save(unsup_model.state_dict(), name)
     print('Finished the unsuperivised training.', '  Loss:', loss)
     print("Start classify!!!")
-    # unsup_model.eval()
+    unsup_model.eval()
     # BU_params=list(map(id,model.BUrumorGCN.conv1.parameters()))
     # BU_params += list(map(id, model.BUrumorGCN.conv2.parameters()))
     # base_params=filter(lambda p:id(p) not in BU_params,model.parameters())
@@ -105,17 +106,19 @@ def train_GCN(treeDic, x_test, x_train, model_config, UDdroprate,lr, weight_deca
             # loss_mix = F.mse_loss(x_clf_logit,x_clf_logit_two)
             # print(Batch_data.y)
             # print(e)
-            subdata,out_labels, init_out= model(Batch_embed, Batch_data, states = 'train', datatype="initdata")
+            # subdata,out_labels, init_out= model(Batch_embed, Batch_data, states = 'train', datatype="initdata")
+            out_labels= model(Batch_embed, Batch_data, states = 'test')
+
             # out_labels = model(Batch_embed, Batch_data, states='test')
 
-            _, Sub_Batch_embed = unsup_model.encoder(subdata[0].x, subdata[0].edge_index, subdata[0].batch)
-            sub_out= model(Sub_Batch_embed, subdata[0], states = 'train', datatype="subdata")
+            #_, Sub_Batch_embed = unsup_model.encoder(subdata[0].x, subdata[0].edge_index, subdata[0].batch)
+            # sub_out= model(Sub_Batch_embed, subdata[0], states = 'train', datatype="subdata")
 
 
             # Batch_embed_x = scatter_mean(Batch_embed, Batch_data.batch, dim=0)
             # Sub_batch_embed_x = scatter_mean(Sub_Batch_embed, subdata[0].batch, dim=0)
 
-            loss_CrossGraph = Graph_loss(g1=init_out, g2=sub_out, batch=Batch_data.batch)
+            #loss_CrossGraph = Graph_loss(g1=init_out, g2=sub_out, batch=Batch_data.batch)
             #loss_IntraGraph = Graph_loss(g1=Batch_embed_x, g2=Batch_embed_x, batch=Batch_data.batch)
 
             finalloss=F.nll_loss(out_labels,Batch_data.y)
@@ -218,7 +221,7 @@ data_nam = "Graph_Twitter"
 # batchsize=128
 # TDdroprate=0
 # BUdroprate=0
-cuda_id = 0  # or -1 if cpu
+cuda_id = 1  # or -1 if cpu
 device = torch.device(f'cuda:{cuda_id}' if cuda_id >= 0 else 'cpu')
 print("[INFO] Dataset:", data_nam)
 print("[INFO] Model:", model_config["model_name"])
@@ -246,12 +249,12 @@ def set_seed(seed=1):
 datasetname=sys.argv[1] #"Twitter15"、"Twitter16"
 iterations=int(sys.argv[2])
 model="GCN"
-device = th.device('cuda:0' if th.cuda.is_available() else 'cpu')
+# device = th.device('cuda:1' if th.cuda.is_available() else 'cpu')
 
 
 def run_main(contrast_lr):
     # set_seed(1)
-    f = open('/home/ubuntu/PyProjects_gsuhyl/PyProjects/Contrast_Subsets_fusion/'+datasetname+'res_R1.txt','a')
+    f = open('/home/ubuntu/PyProjects_gsuhyl/PyProjects/Contrast_Subsets_fusion/'+datasetname+'res_R2.txt','a')
     test_accs = []
     NR_F1 = []
     FR_F1 = []

@@ -13,6 +13,8 @@ from torch_geometric.nn import GINConv,GCNConv, global_mean_pool
 from torch.nn import Sequential, Linear, ReLU
 import copy
 import math
+from GCL.models import DualBranchContrast
+import GCL.losses as L
 
 import random
 from torch_geometric.utils import subgraph
@@ -20,6 +22,10 @@ import torch
 cuda_id = 1
 # os.environ
 device = torch.device(f'cuda:{cuda_id}' if cuda_id >= 0 else 'cpu')
+
+
+
+Graph_loss = DualBranchContrast(loss=L.JSD(), mode='G2G')
 
 class PriorDiscriminator(th.nn.Module):
     def __init__(self, input_dim):
@@ -161,6 +167,7 @@ class Net1(th.nn.Module):
         self.encoder = Encoder(5000, hidden_dim, num_gc_layers)
         # self.sampler = Sampler()
         self.sample_model = Sampler(device)
+        self.extractor = ExtractorMLP(64, False, 0, 1)
         self.local_d = FF(self.embedding_dim)  # Feed forward layer
         self.global_d = FF(self.embedding_dim)  # Feed forward layer
 
@@ -179,7 +186,7 @@ class Net1(th.nn.Module):
         x, edge_index, dropped_edge_index, batch, num_graphs, mask = data.x, data.edge_index, data.dropped_edge_index, data.batch, max(
             data.batch) + 1, data.mask
         #todo random walk from rot node
-        edge_sub, _ = subgraph(mask, edge_index)  # generate subgraph's edge index
+        #edge_sub, _ = subgraph(mask, edge_index)  # generate subgraph's edge index
         # node_mask = th.ones((x.size(0), 1)).to(device)
         # for i in range(x.size(0)):
         #     if random.random() >= 0.8:
@@ -194,7 +201,7 @@ class Net1(th.nn.Module):
         #todo sample
         sub_datas, sub_atts, all_neg_top_ks = self.sample_model(data, att, data.x)
         # y, M = self.encoder(x, edge_index, batch)
-        node_mask = th.ones((x.size(0), 1)).cuda()
+        node_mask = th.ones((x.size(0), 1)).to(device)
         for i in range(x.size(0)):
             if i in all_neg_top_ks[0]:
             # if random.random() >= 0.8:
@@ -207,7 +214,8 @@ class Net1(th.nn.Module):
         #假设这个就是节点MASK，为了避免一次进行多次的重复操作，我们考虑
 
 
-        y_pos, M_pos = self.encoder(x, edge_sub, batch)  # subgraph
+
+        #y_pos, M_pos = self.encoder(x, edge_sub, batch)  # subgraph
         # y_dropped, M_dropped = self.encoder(x, dropped_edge_index, batch)  # drop edge
         #todo sample pos graph
         y_dropped, M_dropped = self.encoder(sub_datas[0].x, sub_datas[0].edge_index, sub_datas[0].batch)  # y->num_graphs x dim; M->num_nodes x dim
@@ -215,17 +223,20 @@ class Net1(th.nn.Module):
         y_dropped_two, M_dropped_two = self.encoder(x_pos_two, edge_index, batch)  # mask_node
 
         g_enc = self.global_d(y)  # feed forward
-        l_enc = self.local_d(M)  # feed forward
+        #l_enc = self.local_d(M)  # feed forward
 
-        l_enc_pos = self.local_d(M_pos)
-        l_enc_dropped = self.local_d(M_dropped)
-        l_enc_dropped_two = self.local_d(M_dropped_two)
+        #l_enc_pos = self.local_d(M_pos)
+        # l_enc_dropped = self.local_d(M_dropped)
+        # l_enc_dropped_two = self.local_d(M_dropped_two)
+        g_enc_dropped = self.global_d(y_dropped)
+        g_enc_dropped_two = self.global_d(y_dropped_two)
 
-        measure = 'JSD'
-        local_global_loss = local_global_loss_(l_enc, g_enc, edge_index, batch, measure, l_enc_pos, l_enc_dropped,
-                                               l_enc_dropped_two)
-
-        return local_global_loss
+        # measure = 'JSD'
+        # local_global_loss = local_global_loss_(l_enc, g_enc, edge_index, batch, measure, l_enc_pos, l_enc_dropped,
+        #                                        l_enc_dropped_two)
+        g_enc_mean = (g_enc_dropped+g_enc_dropped_two)/2
+        loss_CrossGraph = Graph_loss(g1=g_enc, g2=g_enc_mean, batch=data.batch)
+        return loss_CrossGraph
 
 
 class Classfier1(th.nn.Module):

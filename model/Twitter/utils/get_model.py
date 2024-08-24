@@ -6,7 +6,7 @@ from torch_geometric.nn import InstanceNorm
 
 #用于获取子图的最终表征，输入为子图，和边的注意力系数
 def get_model(x_dim, edge_attr_dim, num_class, multi_label, model_config, device):
-    
+
     if model_config['model_name'] == 'GAT':
         model = GAT(model_config, num_class, x_dim, device)
     # '''

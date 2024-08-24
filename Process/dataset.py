@@ -6,6 +6,34 @@ from torch.utils.data import Dataset
 from torch_geometric.data import Data
 from Process.getTwittergraph import Node_tweet
 
+def sparse_mx_to_torch(sparse_mx):
+    """Convert a scipy sparse matrix to a torch sparse tensor."""
+    # print(type(sparse_mx))
+    sparse_mx = sparse_mx.tocoo().astype(np.float32)
+    # print('----------------------------------------------------')
+    if len(sparse_mx.row) == 0 or len(sparse_mx.col) == 0:
+        print(sparse_mx.row, sparse_mx.col)
+        print('data bug')
+        print('sparse_mx.data',sparse_mx.data)
+        print('sparse_mx.shape',sparse_mx.shape)
+    # print('--------row col-------:',type(sparse_mx.row),type(sparse_mx.col)) dp.ndarray
+    if np.NAN in sparse_mx.data:
+        print('有NaN数据')
+    # with open('test_matraix_data.txt','a',encoding='utf-8')as f:
+    #     v_list = []
+    #     for v in sparse_mx.data:
+    #         v_list.append(str(v))
+    #     f.writelines(v_list)
+    # assert sparse_mx.data.sum() == np.float32(len(sparse_mx.row))
+    # print('data sparse_mx.data.sum',sparse_mx.data.sum(),type(sparse_mx.data.sum()))
+    # print('data len(sparse_mx.row)',len(sparse_mx.row),type(len(sparse_mx.row)))
+    indices = torch.from_numpy(
+        np.vstack((sparse_mx.row, sparse_mx.col)).astype(np.int64))
+    values = torch.from_numpy(sparse_mx.data.astype(np.float32))
+    shape = torch.Size(sparse_mx.shape)
+    return indices,values,shape
+
+
 class GraphDataset(Dataset):
     def __init__(self, fold_x, treeDic,lower=2, upper=100000, droprate=0,
                  data_path=os.path.join('..','..', 'data', 'Weibograph')):
@@ -88,11 +116,12 @@ class BiGraphDataset(Dataset):
              rootindex=torch.LongTensor([int(data['rootindex'])]))
 
 class BiGraphDataset1(Dataset):
-    def __init__(self, fold_x, treeDic,lower=2, upper=100000, tddroprate=0,budroprate=0,
+    def __init__(self, fold_x, treeDic,lower=2, upper=100000, tddroprate=0,budroprate=0,dataname='Twitter16',
                  data_path=os.path.join('..','..', 'data', 'Twitter16graph')):
         self.fold_x = list(filter(lambda id: id in treeDic and len(treeDic[id]) >= lower and len(treeDic[id]) <= upper, fold_x))
         self.treeDic = treeDic
         self.data_path = data_path
+        self.knowledge_data_path = './data/' + dataname + '_Knowledge'
         self.tddroprate = tddroprate  # rate of dropedge
         self.budroprate = budroprate
 
@@ -146,6 +175,26 @@ class BiGraphDataset1(Dataset):
                 mask[int(cur.idx) - 1] = 1
                 for child in cur.children:
                     que.append(child)
+        knowledge_data=np.load(os.path.join(self.knowledge_data_path, id + ".npz"), allow_pickle=True)
+
+        knowledge_edgeindex = knowledge_data['edgeindex'][0]
+        # print(edgeindex.toarray())
+        # print(knowledge_edgeindex)
+
+        knowledge_edgeindex , knowledge_edgevalue, knowledge_edgeshape = sparse_mx_to_torch(knowledge_edgeindex)
+        # if self.knowledge_droprate > 0:
+        #     knowledge_row = list(knowledge_edgeindex[0])
+        #     knowledge_col = list(knowledge_edgeindex[1])
+        #     knowledge_length = len(knowledge_row)
+        #     knowledge_poslist = random.sample(range(knowledge_length), int(knowledge_length * (1 - self.knowledge_droprate)))
+        #     knowledge_poslist = sorted(knowledge_poslist)
+        #     knowledge_row = list(np.array(knowledge_row)[knowledge_poslist])
+        #     knowledge_col = list(np.array(knowledge_col)[knowledge_poslist])
+        #     knowledge_new_edgeindex = [knowledge_row, knowledge_col]
+        # else:
+        knowledge_new_edgeindex = knowledge_edgeindex
+        # print(id)
+        knowledge_new_feature_ids = knowledge_data['feature_ids'].reshape(-1,1)
 
         if self.tddroprate > 0:
             return Data(x=torch.tensor(data['x'],dtype=torch.float32), # x->num_nodes x features ; edge_index->2 x num_nodes(top down)
@@ -154,7 +203,9 @@ class BiGraphDataset1(Dataset):
                         edge_index=torch.LongTensor(edgeindex),#BU_edge_index=torch.LongTensor(bunew_edgeindex), # BU_edge_index->2 x num_nodes(bottom up))
                         dropped_edge_index=torch.LongTensor(drop_edgeindex),
                  y=torch.LongTensor([int(data['y'])]), root=torch.LongTensor(data['root']), # y->label
-                 rootindex=torch.LongTensor([int(data['rootindex'])]))  # rootindex->the index of source tweet
+                 rootindex=torch.LongTensor([int(data['rootindex'])]))
+
+
         else:
             return Data(x=torch.tensor(data['x'], dtype=torch.float32),
                         # x->num_nodes x features ; edge_index->2 x num_nodes(top down)
@@ -162,7 +213,8 @@ class BiGraphDataset1(Dataset):
                         mask=torch.tensor(mask, dtype=torch.bool),
                         edge_index=torch.LongTensor(edgeindex),
                         y=torch.LongTensor([int(data['y'])]), root=torch.LongTensor(data['root']),  # y->label
-                        rootindex=torch.LongTensor([int(data['rootindex'])]))  # rootindex->the index of source tweet
+                        rootindex=torch.LongTensor([int(data['rootindex'])]))
+
 
 
 class UdGraphDataset(Dataset):
